@@ -66,12 +66,13 @@ def print_metrics(
             current_client[metric] = metric_value
         client_data.loc[len(client_data)] = current_client
 
-    mode = 'w' if round_number == 0 else 'a'
-    print_dataframe(client_data, path, mode)
+    print_dataframe(client_data, path)
 
 
-def print_dataframe(df, path, mode='w'):
+def print_dataframe(df, path):
     """Writes the given dataframe in path as a csv"""
+    file_exists = os.path.isfile(path) #NOTE: Only add headers if it's a new file
+    mode = 'a' if file_exists else 'w'
     header = mode == 'w'
     df.to_csv(path, mode=mode, header=header, index=False)
 
