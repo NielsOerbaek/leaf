@@ -34,7 +34,7 @@ def main():
         print('Please specify a valid dataset and a valid model.')
     model_path = '%s.%s' % (args.dataset, args.model)
     
-    print('############################## %s ##############################' % model_path)
+    print('############################## %s ##############################' % model_path, flush=True)
     mod = importlib.import_module(model_path)
     ClientModel = getattr(mod, 'ClientModel')
 
@@ -44,7 +44,7 @@ def main():
     clients_per_round = args.clients_per_round if args.clients_per_round != -1 else tup[2]
 
     # Suppress tf warnings
-    tf.logging.set_verbosity(tf.logging.WARN)
+    # tf.logging.set_verbosity(tf.logging.WARN)
 
     # Create 2 models
     model_params = MODEL_PARAMS[model_path]
@@ -66,14 +66,14 @@ def main():
     print('Clients in Total: %d' % len(clients))
 
     # Initial status
-    print('--- Random Initialization ---')
+    print('--- Random Initialization ---', flush=True)
     stat_writer_fn = get_stat_writer_function(client_ids, client_groups, client_num_samples, args)
     sys_writer_fn = get_sys_writer_function(args)
     print_stats(0, server, clients, client_num_samples, args, stat_writer_fn, args.use_val_set)
 
     # Simulate training
     for i in range(num_rounds):
-        print('--- Round %d of %d: Training %d Clients ---' % (i + 1, num_rounds, clients_per_round))
+        print('--- Round %d of %d: Training %d Clients ---' % (i + 1, num_rounds, clients_per_round), flush=True)
 
         # Select clients to train this round
         server.select_clients(i, online(clients), num_clients=clients_per_round)
@@ -95,7 +95,7 @@ def main():
     if not os.path.exists(ckpt_path):
         os.makedirs(ckpt_path)
     save_path = server.save_model(os.path.join(ckpt_path, '{}.ckpt'.format(args.model)))
-    print('Model saved in path: %s' % save_path)
+    print('Model saved in path: %s' % save_path, flush=True)
 
     # Close models
     server.close_model()
@@ -179,7 +179,7 @@ def print_metrics(metrics, weights, prefix=''):
                  np.average(ordered_metric, weights=ordered_weights),
                  np.percentile(ordered_metric, 10),
                  np.percentile(ordered_metric, 50),
-                 np.percentile(ordered_metric, 90)))
+                 np.percentile(ordered_metric, 90)), flush=True)
 
 
 if __name__ == '__main__':
