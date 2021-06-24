@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#SBATCH --job-name=femnist-array         # Job name
+#SBATCH --array=4-5           # Array indexes
+#SBATCH --output=femnist-array.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --time=48:00:00          # Run time (hh:mm:ss)
+#SBATCH --exclusive		# Give me exclusive machines, please
+#SBATCH --partition=red    # Run on either the Red or Brown queue
+
+echo "Running $(hostname) - run $SLURM_ARRAY_TASK_ID / $SLURM_ARRAY_TASK_COUNT"
+
+module load Anaconda3
+. $(conda info --base)/etc/profile.d/conda.sh
+conda activate leaf
+
+./paper_experiments/femnist2.sh "$SLURM_ARRAY_TASK_ID"

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#SBATCH --job-name=femnist-baseline         # Job name
+#SBATCH --output=femnist.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --time=24:00:00          # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=red,brown    # Run on either the Red or Brown queue
+
+
+echo "Running $(hostname)"
+module load Anaconda3
+. $(conda info --base)/etc/profile.d/conda.sh
+conda activate leaf
+
+./paper_experiments/femnist.sh
