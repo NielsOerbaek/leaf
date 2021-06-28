@@ -8,7 +8,7 @@ if [ ! -d "data/all_data" ] || [ ! "$(ls -A data/all_data)" ]; then
     cd ..
 fi
 
-NAME="femnist" # name of the dataset, equivalent to directory name
+NAME="uni-femnist" # name of the dataset, equivalent to directory name
 
 cd ../utils
 
