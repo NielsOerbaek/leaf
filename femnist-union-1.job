@@ -1,0 +1,78 @@
+#!/bin/bash
+
+#SBATCH --job-name=uni-femnist         # Job name
+#SBATCH --output=uni-femnist.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --time=48:00:00          # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --exclusive  # Get a full machine
+#SBATCH --partition=red    # Run on either the Red or Brown queue
+
+echo "Running $(hostname) - (n)iid"
+module load Anaconda3
+. $(conda info --base)/etc/profile.d/conda.sh
+conda activate leaf
+
+split_seed="1549786796"
+sampling_seed="1549786595"
+num_rounds="1000"
+fedavg_lr="0.004"
+output_dir="/home/niec/leaf/iid"
+
+function move_data() {
+	path="$1"
+	suffix="$2"
+	
+	cd /home/niec/leaf/models/metrics
+	mv sys_metrics.csv "${path}/sys_metrics_${suffix}.csv"
+	mv stat_metrics.csv "${path}/stat_metrics_${suffix}.csv"
+	
+
+	cp -r /home/niec/leaf/data/uni-femnist/meta "${path}"
+	mv "${path}/meta" "${path}/meta_${suffix}"
+}
+
+
+# NIID EXPERIMENTS
+echo "################## NIID EXPERIMENTS ######################"
+
+cd /home/niec/leaf/data/uni-femnist/data
+rm -r rem_user_data/ sampled_data/ test/ train/
+
+./preprocess.sh -s union --sf 0.05 --u 0.05 -k 100 -t sample
+
+cd /home/niec/leaf/data/uni-femnist
+./preprocess.sh -s niid --sf 0.05 -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
+
+cd /home/niec/leaf/models
+python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+
+cd /home/niec/leaf
+move_data ${output_dir} "fedavg_c_3_e_1_niid"
+
+cd /home/niec/leaf/models
+python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 35 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+
+cd /home/niec/leaf
+move_data ${output_dir} "fedavg_c_35_e_1_niid"
+
+
+# IID EXPERIMENTS
+echo "################## IID EXPERIMENTS ######################"
+
+cd /home/niec/leaf/data/uni-femnist/data
+rm -r rem_user_data/ sampled_data/ test/ train/
+
+cd /home/niec/leaf/data/uni-femnist
+./preprocess.sh -s iid --sf 0.05 --u 0.05 -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
+
+cd /home/niec/leaf/models
+python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+
+cd /home/niec/leaf
+move_data ${output_dir} "fedavg_c_3_e_1_iid"
+
+cd /home/niec/leaf/models
+python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 35 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+
+cd /home/niec/leaf
+move_data ${output_dir} "fedavg_c_35_e_1_iid"
+
