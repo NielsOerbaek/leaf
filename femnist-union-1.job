@@ -32,47 +32,25 @@ function move_data() {
 
 
 # NIID EXPERIMENTS
-echo "################## NIID EXPERIMENTS ######################"
+echo "################## UNION EXPERIMENTS ######################"
 
-cd /home/niec/leaf/data/uni-femnist/data
-rm -r rem_user_data/ sampled_data/ test/ train/
+Union_sizes=("0.01" "0.05" "0.1" "0.2" "0.5" "1.0")
 
-./preprocess.sh -s union --sf 0.05 --u 0.05 -k 100 -t sample
+for union_size in ${Union_sizes[*]}; do
+    echo "-- UNION SIZE: $union_size"
 
-cd /home/niec/leaf/data/uni-femnist
-./preprocess.sh -s niid --sf 0.05 -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
+	cd /home/niec/leaf/data/uni-femnist/data
+	rm -r rem_user_data/ sampled_data/ test/ train/
 
-cd /home/niec/leaf/models
-python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+	cd /home/niec/leaf/data/uni-femnist
+	./preprocess.sh -s union --sf 0.05 --u 0.05 -k 100 -t sample --union_size ${union_size} --smplseed ${sampling_seed} --spltseed ${split_seed}
 
-cd /home/niec/leaf
-move_data ${output_dir} "fedavg_c_3_e_1_niid"
+	cd /home/niec/leaf/models
+	python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
 
-cd /home/niec/leaf/models
-python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 35 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
-
-cd /home/niec/leaf
-move_data ${output_dir} "fedavg_c_35_e_1_niid"
+	cd /home/niec/leaf
+	move_data ${output_dir} "fedavg_c_3_e_1_union_$union_size"
+done
 
 
-# IID EXPERIMENTS
-echo "################## IID EXPERIMENTS ######################"
-
-cd /home/niec/leaf/data/uni-femnist/data
-rm -r rem_user_data/ sampled_data/ test/ train/
-
-cd /home/niec/leaf/data/uni-femnist
-./preprocess.sh -s iid --sf 0.05 --u 0.05 -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
-
-cd /home/niec/leaf/models
-python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
-
-cd /home/niec/leaf
-move_data ${output_dir} "fedavg_c_3_e_1_iid"
-
-cd /home/niec/leaf/models
-python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 35 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
-
-cd /home/niec/leaf
-move_data ${output_dir} "fedavg_c_35_e_1_iid"
 
