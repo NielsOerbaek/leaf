@@ -28,6 +28,7 @@ key="$1"
 case $key in
     --name)
     NAME="$2"
+    echo "$NAME"
     shift # past argument
     if [ ${SAMPLE:0:1} = "-" ]; then
         NAME="sent140"
@@ -37,6 +38,7 @@ case $key in
     ;;
     -s)
     SAMPLE="$2"
+    echo "$SAMPLE"
     shift # past argument
     if [ ${SAMPLE:0:1} = "-" ]; then
         SAMPLE=""
@@ -176,7 +178,11 @@ if [ "$CONT_SCRIPT" = true ] && [ ! $SAMPLE = "na" ]; then
         SEED_ARGUMENT="${SAMPLING_SEED:--1}" 
 
         if [ $SAMPLE = "iid" ]; then
+            echo "${META_DIR} python3 sample.py $NAMETAG --iid $IUSERTAG $SFRACTAG --seed ${SEED_ARGUMENT}"
             LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG --iid $IUSERTAG $SFRACTAG --seed ${SEED_ARGUMENT}
+        elif [ $SAMPLE = "union" ]; then
+            python3 create_unions.py $NAMETAG -f 
+            LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG --union $SFRACTAG --seed ${SEED_ARGUMENT}
         else
             LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG $SFRACTAG --seed ${SEED_ARGUMENT}
         fi
