@@ -46,6 +46,10 @@ case $key in
         shift # past value
     fi
     ;;
+    --union_size)
+    UNION_SIZE="$2"
+    shift # past argument
+    ;;
     --iu)
     IUSER="$2"
     shift # past argument
@@ -181,7 +185,7 @@ if [ "$CONT_SCRIPT" = true ] && [ ! $SAMPLE = "na" ]; then
             echo "${META_DIR} python3 sample.py $NAMETAG --iid $IUSERTAG $SFRACTAG --seed ${SEED_ARGUMENT}"
             LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG --iid $IUSERTAG $SFRACTAG --seed ${SEED_ARGUMENT}
         elif [ $SAMPLE = "union" ]; then
-            python3 create_unions.py $NAMETAG -f 
+            python3 create_unions.py $NAMETAG -f --size $UNION_SIZE
             LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG --union $SFRACTAG --seed ${SEED_ARGUMENT}
         else
             LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG $SFRACTAG --seed ${SEED_ARGUMENT}

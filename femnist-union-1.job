@@ -46,7 +46,7 @@ for union_size in ${Union_sizes[*]}; do
 	./preprocess.sh -s union --sf 0.05 --u 0.05 -k 100 -t sample --union_size ${union_size} --smplseed ${sampling_seed} --spltseed ${split_seed}
 
 	cd /home/niec/leaf/models
-	python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+	python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 1 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
 
 	cd /home/niec/leaf
 	move_data ${output_dir} "fedavg_c_3_e_1_union_$union_size"

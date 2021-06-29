@@ -1,6 +1,6 @@
 import argparse
 
-DATASETS = ['sent140', 'femnist', 'shakespeare', 'celeba', 'synthetic', 'reddit']
+DATASETS = ['sent140', 'femnist', 'shakespeare', 'celeba', 'synthetic', 'reddit', 'uni-femnist']
 SIM_TIMES = ['small', 'medium', 'large']
 
 
