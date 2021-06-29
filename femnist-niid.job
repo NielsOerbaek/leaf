@@ -34,24 +34,24 @@ function move_data() {
 # NIID EXPERIMENTS
 echo "################## NIID EXPERIMENTS ######################"
 
-cd /home/niec/leaf/data/femnist/data
-rm -r rem_user_data/ sampled_data/ test/ train/
-
-cd /home/niec/leaf/data/femnist
-./preprocess.sh -s niid --sf 0.05 -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
-
-cd /home/niec/leaf/models
-python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
-
-cd /home/niec/leaf
-move_data ${output_dir} "fedavg_c_3_e_1_niid"
-
-cd /home/niec/leaf/models
-python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 35 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
-
-cd /home/niec/leaf
-move_data ${output_dir} "fedavg_c_35_e_1_niid"
-
+#cd /home/niec/leaf/data/femnist/data
+#rm -r rem_user_data/ sampled_data/ test/ train/
+#
+#cd /home/niec/leaf/data/femnist
+#./preprocess.sh -s niid --sf 0.05 -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
+#
+#cd /home/niec/leaf/models
+#python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+#
+#cd /home/niec/leaf
+#move_data ${output_dir} "fedavg_c_3_e_1_niid"
+#
+#cd /home/niec/leaf/models
+#python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 35 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+#
+#cd /home/niec/leaf
+#move_data ${output_dir} "fedavg_c_35_e_1_niid"
+#
 
 # IID EXPERIMENTS
 echo "################## IID EXPERIMENTS ######################"
@@ -60,7 +60,7 @@ cd /home/niec/leaf/data/femnist/data
 rm -r rem_user_data/ sampled_data/ test/ train/
 
 cd /home/niec/leaf/data/femnist
-./preprocess.sh -s iid --sf 0.05 --u 0.05 -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
+./preprocess.sh -s iid --sf 0.05 --iu 0.05 -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
 
 cd /home/niec/leaf/models
 python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round 3 --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
