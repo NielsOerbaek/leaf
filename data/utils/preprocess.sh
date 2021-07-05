@@ -17,6 +17,9 @@ SPLIT_SEED="" # --spltseed, seed specified for train/test data split
 NO_CHECKSUM="" # --nochecksum, disable creation of MD5 checksum file after data gen
 VERIFICATION_FILE="" # --verify <fname>, check if JSON files' MD5 matches given digest
 
+UNION_SIZE="0.05"
+UNION_TYPE="equal"
+
 META_DIR='meta'
 CHECKSUM_FNAME="${META_DIR}/dir-checksum.md5"
 
@@ -48,6 +51,10 @@ case $key in
     ;;
     --union_size)
     UNION_SIZE="$2"
+    shift # past argument
+    ;;
+    --union_type)
+    UNION_TYPE="$2"
     shift # past argument
     ;;
     --iu)
@@ -185,7 +192,7 @@ if [ "$CONT_SCRIPT" = true ] && [ ! $SAMPLE = "na" ]; then
             echo "${META_DIR} python3 sample.py $NAMETAG --iid $IUSERTAG $SFRACTAG --seed ${SEED_ARGUMENT}"
             LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG --iid $IUSERTAG $SFRACTAG --seed ${SEED_ARGUMENT}
         elif [ $SAMPLE = "union" ]; then
-            python3 create_unions.py $NAMETAG -f --size $UNION_SIZE
+            python3 create_unions.py $NAMETAG -f --size $UNION_SIZE --type $UNION_TYPE
             LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG --union $SFRACTAG --seed ${SEED_ARGUMENT}
         else
             LEAF_DATA_META_DIR=${META_DIR} python3 sample.py $NAMETAG $SFRACTAG --seed ${SEED_ARGUMENT}

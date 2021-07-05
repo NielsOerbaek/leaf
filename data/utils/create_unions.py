@@ -19,9 +19,12 @@ parser.add_argument('--name',
                 choices=DATASETS,
                 default='uni-femnist')
 parser.add_argument('--size',
-                help='fraction of users in each equally sized union',
+                help='fraction of users in union',
                 type=float,
                 default='0.05')
+parser.add_argument('--type',
+                help='union type',
+                default='equal')
 parser.add_argument('-f',
                 help='force extract of user info',
                 action="store_true")
@@ -56,6 +59,9 @@ def get_users():
 def equal_unions(users, union_size=0.05):
     # Returns a list of (1/num_union) lists with user_ids
 
+    print("$$$$$$$$$$: EQUAL UNION TIME $$$$$$$$$$")
+
+
     shuffle_seed = 9873248
     np.random.seed(shuffle_seed)
 
@@ -75,36 +81,31 @@ def equal_unions(users, union_size=0.05):
 def single_union(users, union_size=0.1):
     # Returns a list of user_id lists, where one of them is a union of size (len(users)*union_size)
 
+    print("%%%%%%%%%% SINGLE UNION TIME %%%%%%%%%%%")
+
     shuffle_seed = 9873248
     np.random.seed(shuffle_seed)
 
     ids = np.array(users["users"])
     np.random.shuffle(ids)
 
-    union_size = math.ceil(len(users)*union_size)
-
-    print(len(ids))
-    print(union_size)
+    union_size = math.ceil(len(ids)*union_size)
 
     num_lists = len(ids)-union_size+1
 
-    unions = [[] for _ in range(num_lists)]
-
-    unions[0] = ids[:union_size]
+    unions = [list(ids[:union_size])]
 
     for user in ids[union_size:]:
         unions.append([user])
 
-    print(unions)
-
     return unions
 
 
-def create_union_lists(users, union_type="equal", union_size=0.05):
-    if union_type == "equal":
+def create_union_lists(users, union_size=0.05):
+    if args.type == "equal":
         unions = equal_unions(users,union_size)
 
-    if union_type == "single":
+    if args.type == "single":
         unions = single_union(users,union_size)
 
     num_samples = list(map(int, users["num_samples"]))
@@ -116,7 +117,7 @@ def create_union_lists(users, union_type="equal", union_size=0.05):
         ut = list(map(lambda id: (id, sample_dict[id]), u))
         union_tuples.append(ut)
     
-    filename = "union_lists_%s_%s.json" % (union_type, union_size)
+    filename = "union_lists_%s_%s.json" % (args.type, union_size)
     path = os.path.join(union_dir, filename)
     json.dump(union_tuples, open(path,"w"))
 

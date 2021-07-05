@@ -87,17 +87,25 @@ if args.union:
     with open(union_list_file, "r") as f:
         union_list = json.load(f)
     
-    num_unions = len(union_list)
-    union_names = ["union_%d" % i for i in range(num_unions)]
+
+    total_samples = sum(map(lambda union: sum(map(lambda c: c[1], union)), union_list))
+    print("total_samples:", total_samples)
+
+    unions = list(filter(lambda l: len(l) > 1, union_list))
+    singles = list(filter(lambda l: len(l) == 1, union_list))
+    print("Number of unions:", len(unions))
+    print("Number of singles:", len(singles))
     union_num_samples = []
     union_sample = []
 
-    for union in union_list:
-        print("users:", len(union))
-        total_samples = sum(map(lambda c: c[1], union))
-        print("total_samples", total_samples)
-        frac = args.fraction * total_samples
-        print("frac", frac)
+    samples_so_far = 0
+
+    for union in unions:
+        #print("\tusers:", len(union))
+        samples_in_this_union = sum(map(lambda c: c[1], union))
+        #print("\tsamples_in_this_union", samples_in_this_union)
+        frac = args.fraction * samples_in_this_union
+        #print("\tfrac", frac)
         selected_users = []
         sample_count = 0
         for id, samples in union:
@@ -105,14 +113,39 @@ if args.union:
                 break
             selected_users.append(id)
             sample_count += samples
-        print("users in sample:", len(selected_users))
-        print("samples in sample:", sample_count)
+        #print("\tusers in sample:", len(selected_users))
+        #print("\tsamples in sample:", sample_count)
         union_sample.append(selected_users)
         union_num_samples.append(sample_count)
+        samples_so_far += sample_count
+
+
+    samples_remain = (total_samples - samples_so_far) * args.fraction
+    print("samples remain:", samples_remain)
+    
+    num_singles = 0
+
+    for single in singles:
+        samples_in_this_user = single[0][1]
+        id = single[0][0]
+        if samples_remain - samples_in_this_user < 0:
+            break
+        union_sample.append([id])
+        union_num_samples.append(samples_in_this_user)
+        samples_remain -= samples_in_this_user
+
+        num_singles += 1
         
+    union_names = ["union_%d" % i for i in range(len(unions))]
+    singles_names = ["single_%d" % i for i in range(num_singles)]
+    names = union_names + singles_names
+
+    print("NAMES AND LISTS MATCH:", len(union_sample) == len(names))
+    print("number of selected singles:", num_singles, "- total singles: ", len(singles))
+
     union_data = dict([(name, {"x": [], "y": []}) for name in union_names])    
     for f in files:
-        print(f, end=": ", flush=True)
+        print("Looking for users in",f)
         file_dir = os.path.join(subdir, f)
         with open(file_dir, 'r') as inf:
             data = json.load(inf, object_pairs_hook=OrderedDict)
@@ -122,7 +155,7 @@ if args.union:
                     union_data[name]['x'] += user_data['x']
                     union_data[name]['y'] += user_data['y']
 
-        print([(n,len(d["x"])) for n,d in union_data.items()])
+        #print([(n,len(d["x"])) for n,d in union_data.items()])
 
 
     # ------------
