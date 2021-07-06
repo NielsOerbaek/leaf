@@ -44,7 +44,7 @@ def main():
     clients_per_round = args.clients_per_round if args.clients_per_round != -1 else tup[2]
 
     # Suppress tf warnings
-    # tf.logging.set_verbosity(tf.logging.WARN)
+    tf.logging.set_verbosity(tf.logging.WARN)
 
     # Create 2 models
     model_params = MODEL_PARAMS[model_path]
@@ -105,10 +105,13 @@ def online(clients):
     return clients
 
 
-def create_clients(users, groups, train_data, test_data, model):
+def create_clients(users, groups, unions, train_data, test_data, model):
     if len(groups) == 0:
         groups = [[] for _ in users]
-    clients = [Client(u, g, train_data[u], test_data[u], model) for u, g in zip(users, groups)]
+    if len(unions) == 0:
+        unions = [[] for _ in users]
+
+    clients = [Client(us, g, un, train_data[us], test_data[us], model) for us, g, un in zip(users, groups, unions)]
     return clients
 
 
@@ -122,9 +125,9 @@ def setup_clients(dataset, model=None, use_val_set=False):
     train_data_dir = os.path.join('..', 'data', dataset, 'data', 'train')
     test_data_dir = os.path.join('..', 'data', dataset, 'data', eval_set)
 
-    users, groups, train_data, test_data = read_data(train_data_dir, test_data_dir)
+    users, groups, unions, train_data, test_data = read_data(train_data_dir, test_data_dir)
 
-    clients = create_clients(users, groups, train_data, test_data, model)
+    clients = create_clients(users, groups, unions, train_data, test_data, model)
 
     return clients
 

@@ -29,21 +29,25 @@ def batch_data(data, batch_size, seed):
 def read_dir(data_dir):
     clients = []
     groups = []
+    unions = []
     data = defaultdict(lambda : None)
 
     files = os.listdir(data_dir)
     files = [f for f in files if f.endswith('.json')]
     for f in files:
         file_path = os.path.join(data_dir,f)
+        print(file_path)
         with open(file_path, 'r') as inf:
             cdata = json.load(inf)
         clients.extend(cdata['users'])
         if 'hierarchies' in cdata:
             groups.extend(cdata['hierarchies'])
+        if 'unions' in cdata:
+            unions.extend(cdata['unions'])
         data.update(cdata['user_data'])
 
     clients = list(sorted(data.keys()))
-    return clients, groups, data
+    return clients, groups, unions, data
 
 
 def read_data(train_data_dir, test_data_dir):
@@ -60,10 +64,11 @@ def read_data(train_data_dir, test_data_dir):
         train_data: dictionary of train data
         test_data: dictionary of test data
     '''
-    train_clients, train_groups, train_data = read_dir(train_data_dir)
-    test_clients, test_groups, test_data = read_dir(test_data_dir)
+    train_clients, train_groups, train_unions, train_data = read_dir(train_data_dir)
+    test_clients, test_groups, test_unions, test_data = read_dir(test_data_dir)
 
     assert train_clients == test_clients
     assert train_groups == test_groups
+    assert train_unions == test_unions
 
-    return train_clients, train_groups, train_data, test_data
+    return train_clients, train_groups, train_unions, train_data, test_data

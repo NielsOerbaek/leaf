@@ -4,12 +4,13 @@ import warnings
 
 class Client:
     
-    def __init__(self, client_id, group=None, train_data={'x' : [],'y' : []}, eval_data={'x' : [],'y' : []}, model=None):
+    def __init__(self, client_id, group=None, union_list=None, train_data={'x' : [],'y' : []}, eval_data={'x' : [],'y' : []}, model=None):
         self._model = model
         self.id = client_id
         self.group = group
         self.train_data = train_data
         self.eval_data = eval_data
+        self.union_list = union_list
 
     def train(self, num_epochs=1, batch_size=10, minibatch=None):
         """Trains on self.model using the client's train_data.
@@ -85,6 +86,7 @@ class Client:
             int: Number of samples for this client
         """
         train_size = 0
+
         if self.train_data is not None:
             train_size = len(self.train_data['y'])
 
@@ -97,6 +99,17 @@ class Client:
     def model(self):
         """Returns this client reference to model being trained"""
         return self._model
+
+    @property
+    def num_users(self):
+        """Number of users for this client. Only makes sense if we are using unions.
+
+        Return:
+            int: Number of users for this client
+        """
+        if self.union_list is None:
+            return 1
+        return len(self.union_list)
 
     @model.setter
     def model(self, model):
