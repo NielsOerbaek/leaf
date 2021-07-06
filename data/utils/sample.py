@@ -143,14 +143,14 @@ if args.union:
     print("NAMES AND LISTS MATCH:", len(union_sample) == len(names))
     print("number of selected singles:", num_singles, "- total singles: ", len(singles))
 
-    union_data = dict([(name, {"x": [], "y": []}) for name in union_names])    
+    union_data = dict([(name, {"x": [], "y": []}) for name in names])    
     for f in files:
         print("Looking for users in",f)
         file_dir = os.path.join(subdir, f)
         with open(file_dir, 'r') as inf:
             data = json.load(inf, object_pairs_hook=OrderedDict)
         for user, user_data in data['user_data'].items():
-            for name, union in zip(union_names,union_sample):
+            for name, union in zip(names,union_sample):
                 if user in union:
                     union_data[name]['x'] += user_data['x']
                     union_data[name]['y'] += user_data['y']
@@ -162,7 +162,7 @@ if args.union:
     # create .json file
 
     all_data = {}
-    all_data['users'] = union_names
+    all_data['users'] = names
     all_data['num_samples'] = union_num_samples
     all_data['unions'] = union_sample
     all_data['user_data'] = union_data
