@@ -41,6 +41,7 @@ files = [f for f in files if f.endswith('.json')]
 for f in files:
     users = []
     hierarchies = []
+    unions = []
     num_samples = []
     user_data = {}
 
@@ -54,18 +55,25 @@ for f in files:
         curr_hierarchy = None
         if 'hierarchies' in data:
             curr_hierarchy = data['hierarchies'][i]
+        curr_union = None
+        if 'hierarchies' in data:
+            curr_union = data['unions'][i]
         curr_num_samples = data['num_samples'][i]
         if (curr_num_samples >= args.min_samples):
             user_data[curr_user] = data['user_data'][curr_user]
             users.append(curr_user)
             if curr_hierarchy is not None:
                 hierarchies.append(curr_hierarchy)
+            if curr_union is not None:
+                unions.append(curr_union)
             num_samples.append(data['num_samples'][i])
 
     all_data = {}
     all_data['users'] = users
     if len(hierarchies) == len(users):
         all_data['hierarchies'] = hierarchies
+    if len(unions) == len(users):
+        all_data['unions'] = unions
     all_data['num_samples'] = num_samples
     all_data['user_data'] = user_data
 

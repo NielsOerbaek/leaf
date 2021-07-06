@@ -150,6 +150,7 @@ if (args.user):
             # Load data into an OrderedDict, to prevent ordering changes
             # and enable reproducibility
             data = json.load(inf, object_pairs_hook=OrderedDict)
+     
         if include_hierarchy:
             user_files.extend([(u, h, ns, f) for (u, h, ns) in 
                 zip(data['users'], data['hierarchies'], data['num_samples'])])
@@ -255,6 +256,11 @@ else:
             hierarchies = [data['hierarchies'][i] for i in user_indices] 
             all_data_train['hierarchies'] = hierarchies
             all_data_test['hierarchies'] = hierarchies
+
+        if "unions" in data.keys():
+            unions = [data['unions'][i] for i in user_indices] 
+            all_data_train['unions'] = unions
+            all_data_test['unions'] = unions
 
         file_name_train = '%s_train_%s.json' % ((f[:-5]), arg_label)
         file_name_test = '%s_test_%s.json' % ((f[:-5]), arg_label)
