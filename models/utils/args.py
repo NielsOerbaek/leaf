@@ -72,4 +72,13 @@ def parse_args():
                     default=-1,
                     required=False)
 
+    
+    parser.add_argument('--target-performance',
+                    help='Stop training 10 rounds after reaching this target performance on the test set;',
+                    type=float,
+                    default=None)
+    parser.add_argument('--target-metric',
+                    help='Metric to use for early stopping',
+                    default="accuracy")
+
     return parser.parse_args()

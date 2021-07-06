@@ -71,6 +71,10 @@ def main():
     sys_writer_fn = get_sys_writer_function(args)
     print_stats(0, server, clients, client_num_samples, args, stat_writer_fn, args.use_val_set)
 
+    # State for the early stopping target
+    round_where_target_reached = None
+    final_rounds = 10
+
     # Simulate training
     for i in range(num_rounds):
         print('--- Round %d of %d: Training %d Clients ---' % (i + 1, num_rounds, clients_per_round), flush=True)
@@ -88,8 +92,22 @@ def main():
 
         # Test model
         if (i + 1) % eval_every == 0 or (i + 1) == num_rounds:
-            print_stats(i + 1, server, clients, client_num_samples, args, stat_writer_fn, args.use_val_set)
-    
+            metrics = print_stats(i + 1, server, clients, client_num_samples, args, stat_writer_fn, args.use_val_set)
+            
+            if args.target_performance:
+                if round_where_target_reached: 
+                    final_rounds -= i+1 - round_where_target_reached
+                    print(f"... Only {final_rounds} left till we quit")
+                    if final_rounds <= 0:
+                        print("Goodbye!")
+                        exit()
+                else:
+                    performance = np.average([metrics[c][args.target_metric] for c in metrics])
+                    print("Current Performance: %.2f - Target %.2f - Remaining: %.2f" % (performance, args.target_performance, args.target_performance - performance))
+                    if performance >= args.target_performance:
+                        print("Reached target performance, will run ten final rounds and then quit.")
+                        round_where_target_reached = i+1
+            
     # Save server model
     ckpt_path = os.path.join('checkpoints', args.dataset)
     if not os.path.exists(ckpt_path):
@@ -161,6 +179,8 @@ def print_stats(
     test_stat_metrics = server.test_model(clients, set_to_use=eval_set)
     print_metrics(test_stat_metrics, num_samples, prefix='{}_'.format(eval_set))
     writer(num_round, test_stat_metrics, eval_set)
+
+    return test_stat_metrics    
 
 
 def print_metrics(metrics, weights, prefix=''):
