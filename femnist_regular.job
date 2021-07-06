@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=femnist-niid         # Job name
 #SBATCH --output=femnist-niid.%j.out      # Name of output file (%j expands to jobId)
-#SBATCH --time=48:00:00          # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --time=72:00:00          # Run time (hh:mm:ss) - run for one hour max
 #SBATCH --exclusive  # Get a full machine
 #SBATCH --partition=red    # Run on either the Red or Brown queue
 
