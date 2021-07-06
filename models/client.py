@@ -109,7 +109,7 @@ class Client:
         """
         if self.union_list is None:
             return 1
-        return len(self.union_list)
+        return max(1,len(self.union_list))
 
     @model.setter
     def model(self, model):
