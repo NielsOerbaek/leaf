@@ -39,9 +39,10 @@ echo "################## NIID EXPERIMENTS ######################"
 
 for clients_per_round in ${num_clients[*]}; do
     echo "-- NUMBER OF CLIENTS: $clients_per_round"
+    echo "-- NUMBER OF ROUNDS: $num_rounds"
 
 	cd /home/niec/leaf/data/uni-femnist/data
-	rm -r rem_user_data/ sampled_data/ test/ train/
+	rm -r rem_user_data/ sampled_data/ test/ train/ union/
 
 	cd /home/niec/leaf/data/uni-femnist
 	./preprocess.sh -s niid --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
@@ -60,7 +61,7 @@ for clients_per_round in ${num_clients[*]}; do
     echo "-- NUMBER OF CLIENTS: $clients_per_round"
 
 	cd /home/niec/leaf/data/uni-femnist/data
-	rm -r rem_user_data/ sampled_data/ test/ train/
+	rm -r rem_user_data/ sampled_data/ test/ train/ union/
 
 	cd /home/niec/leaf/data/uni-femnist
 	./preprocess.sh -s iid --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}

@@ -190,6 +190,8 @@ else:
             # and enable reproducibility
             data = json.load(inf, object_pairs_hook=OrderedDict)
 
+        print(data.keys())
+
         num_samples_train = []
         user_data_train = {}
         num_samples_test = []
@@ -261,6 +263,8 @@ else:
             unions = [data['unions'][i] for i in user_indices] 
             all_data_train['unions'] = unions
             all_data_test['unions'] = unions
+        else:
+            print("SOMETHING IS WRONG! ABORT! NO UNIONS IN DATA")
 
         file_name_train = '%s_train_%s.json' % ((f[:-5]), arg_label)
         file_name_test = '%s_test_%s.json' % ((f[:-5]), arg_label)

@@ -6,14 +6,14 @@
 #SBATCH --exclusive  # Get a full machine
 #SBATCH --partition=red    # Run on either the Red or Brown queue
 
-echo "Running $(hostname) - (n)iid"
+echo "Running $(hostname) - Single unions"
 module load Anaconda3
 . $(conda info --base)/etc/profile.d/conda.sh
 conda activate leaf
 
 split_seed="1549786796"
 sampling_seed="1549786595"
-num_rounds="1000"
+num_rounds="2000"
 fedavg_lr="0.004"
 output_dir="/home/niec/leaf/iid"
 frac_of_data="0.05"

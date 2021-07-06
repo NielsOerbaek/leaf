@@ -48,6 +48,7 @@ for f in files:
     file_dir = os.path.join(subdir, f)
     with open(file_dir, 'r') as inf:
         data = json.load(inf)
+    print("REMOVE USERS", data.keys())
 
     num_users = len(data['users'])
     for i in range(num_users):
@@ -56,7 +57,7 @@ for f in files:
         if 'hierarchies' in data:
             curr_hierarchy = data['hierarchies'][i]
         curr_union = None
-        if 'hierarchies' in data:
+        if 'unions' in data:
             curr_union = data['unions'][i]
         curr_num_samples = data['num_samples'][i]
         if (curr_num_samples >= args.min_samples):
