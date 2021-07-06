@@ -17,6 +17,7 @@ num_rounds="1000"
 fedavg_lr="0.004"
 output_dir="/home/niec/leaf/iid"
 frac_of_data="0.05"
+target_performance="0.8"
 num_clients=("1" "3" "10" "35")
 union_sizes=("0.01" "0.05" "0.1" "0.2")
 
@@ -49,7 +50,7 @@ for union_size in ${union_sizes[*]}; do
 		./preprocess.sh -s union --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --union_size ${union_size} --union_type single
 
 		cd /home/niec/leaf/models
-		python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round ${clients_per_round} --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+		python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round ${clients_per_round} --num-epochs 1 -lr ${fedavg_lr} --eval-every 2 --target-performance ${target_performance}
 
 		cd /home/niec/leaf
 		move_data ${output_dir} "fedavg_c_${clients_per_round}_e_1_frac_${frac_of_data}_union_single_${union_size}"
