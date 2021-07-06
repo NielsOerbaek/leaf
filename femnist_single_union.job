@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#SBATCH --job-name=femnist-niid         # Job name
+#SBATCH --output=femnist-niid.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --time=48:00:00          # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --exclusive  # Get a full machine
+#SBATCH --partition=red    # Run on either the Red or Brown queue
+
+echo "Running $(hostname) - (n)iid"
+module load Anaconda3
+. $(conda info --base)/etc/profile.d/conda.sh
+conda activate leaf
+
+split_seed="1549786796"
+sampling_seed="1549786595"
+num_rounds="1000"
+fedavg_lr="0.004"
+output_dir="/home/niec/leaf/iid"
+frac_of_data="0.05"
+num_clients=("1" "3" "10" "35")
+union_sizes=("0.01" "0.05" "0.1" "0.2")
+
+function move_data() {
+	path="$1"
+	suffix="$2"
+	
+	cd /home/niec/leaf/models/metrics
+	mv sys_metrics.csv "${path}/sys_metrics_${suffix}.csv"
+	mv stat_metrics.csv "${path}/stat_metrics_${suffix}.csv"
+	
+
+	cp -r /home/niec/leaf/data/femnist/meta "${path}"
+	mv "${path}/meta" "${path}/meta_${suffix}"
+}
+
+
+# SINGLE UNION EXPERIMENTS
+echo "################## SINGLE UNION EXPERIMENTS ######################"
+
+for union_size in ${union_sizes[*]}; do
+	echo "-- UNION SIZE: $union_size"
+	for clients_per_round in ${num_clients[*]}; do
+		echo "-- NUMBER OF CLIENTS: $clients_per_round"
+
+		cd /home/niec/leaf/data/uni-femnist/data
+		rm -r rem_user_data/ sampled_data/ test/ train/
+
+		cd /home/niec/leaf/data/uni-femnist
+		./preprocess.sh -s union --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --union_size ${union_size} --union_type single
+
+		cd /home/niec/leaf/models
+		python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round ${clients_per_round} --num-epochs 1 -lr ${fedavg_lr} --eval-every 2
+
+		cd /home/niec/leaf
+		move_data ${output_dir} "fedavg_c_${clients_per_round}_e_1_frac_${frac_of_data}_union_single_${union_size}"
+	done
+done
+
+
