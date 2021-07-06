@@ -22,9 +22,16 @@ class Server:
         Return:
             list of (num_train_samples, num_test_samples)
         """
+
+        num_users = [c.num_users for c in possible_clients]
+        total_users = sum(num_users)
+        p_dist = [n / total_users for n in num_users]
+
         num_clients = min(num_clients, len(possible_clients))
         np.random.seed(my_round)
-        self.selected_clients = np.random.choice(possible_clients, num_clients, replace=False)
+        self.selected_clients = np.random.choice(possible_clients, num_clients, replace=False, p=p_dist)
+
+        print("Num users in each client:", [c.num_users for c in self.selected_clients])
 
         return [(c.num_train_samples, c.num_test_samples) for c in self.selected_clients]
 
