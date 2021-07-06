@@ -91,8 +91,6 @@ def single_union(users, union_size=0.1):
 
     union_size = math.ceil(len(ids)*union_size)
 
-    num_lists = len(ids)-union_size+1
-
     unions = [list(ids[:union_size])]
 
     for user in ids[union_size:]:
