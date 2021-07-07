@@ -64,6 +64,7 @@ def main():
     clients = setup_clients(args.dataset, client_model, args.use_val_set)
     client_ids, client_groups, client_num_samples = server.get_clients_info(clients)
     print('Clients in Total: %d' % len(clients))
+    print('Maximum number of users in a client (largest union): %d' % max([c.num_users for c in clients]))
 
     # Initial status
     print('--- Random Initialization ---', flush=True)
@@ -199,7 +200,7 @@ def print_metrics(metrics, weights, prefix=''):
         ordered_metric = [metrics[c][metric] for c in sorted(metrics)]
         print('%s: %g, 10th percentile: %g, 50th percentile: %g, 90th percentile %g' \
               % (prefix + metric,
-                 np.average(ordered_metric, weights=ordered_weights),
+                 np.average(ordered_metric)#, weights=ordered_weights), # NOTE: We remove the weights, so we treat each user individually
                  np.percentile(ordered_metric, 10),
                  np.percentile(ordered_metric, 50),
                  np.percentile(ordered_metric, 90)), flush=True)
