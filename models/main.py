@@ -74,7 +74,7 @@ def main():
 
     # State for the early stopping target
     round_where_target_reached = None
-    final_rounds = 10
+    final_rounds = 50
 
     # Simulate training
     for i in range(num_rounds):
@@ -98,9 +98,8 @@ def main():
             
             if args.target_performance:
                 if round_where_target_reached: 
-                    final_rounds -= i+1 - round_where_target_reached
-                    print(f"... Only {final_rounds} left till we quit")
-                    if final_rounds <= 0:
+                    print(f"\t!!!!q Only {final_rounds - (i+1 - round_where_target_reached)} rounds left till we quit")
+                    if (i+1 - round_where_target_reached) >= final_rounds:
                         print("Goodbye!")
                         exit()
                 else:
@@ -110,7 +109,7 @@ def main():
 
                     print("Current Performance: %.2f - Target %.2f - Remaining: %.2f" % (performance, args.target_performance, args.target_performance - performance))
                     if performance >= args.target_performance:
-                        print("Reached target performance, will run ten final rounds and then quit.")
+                        print("Reached target performance, will run %d final rounds and then quit." % final_rounds)
                         round_where_target_reached = i+1
             
     # Save server model
