@@ -62,7 +62,7 @@ def main():
 
     # Create clients
     clients = setup_clients(args.dataset, client_model, args.use_val_set)
-    client_ids, client_groups, client_num_samples = server.get_clients_info(clients)
+    client_ids, client_groups, client_num_samples, client_num_users = server.get_clients_info(clients)
     print('Clients in Total: %d' % len(clients))
     print('Maximum number of users in a client (largest union): %d' % max([c.num_users for c in clients]))
 
@@ -82,7 +82,7 @@ def main():
 
         # Select clients to train this round
         server.select_clients(i, online(clients), num_clients=clients_per_round)
-        c_ids, c_groups, c_num_samples = server.get_clients_info(server.selected_clients)
+        c_ids, c_groups, c_num_samples, c_num_users = server.get_clients_info(server.selected_clients)
 
         # Simulate server model training on selected clients' data
         sys_metrics = server.train_model(num_epochs=args.num_epochs, batch_size=args.batch_size, minibatch=args.minibatch)
@@ -93,7 +93,8 @@ def main():
 
         # Test model
         if (i + 1) % eval_every == 0 or (i + 1) == num_rounds:
-            metrics = print_stats(i + 1, server, clients, client_num_samples, args, stat_writer_fn, args.use_val_set)
+            #Note: We use the number of users as the weight
+            metrics = print_stats(i + 1, server, clients, client_num_users, args, stat_writer_fn, args.use_val_set)
             
             if args.target_performance:
                 if round_where_target_reached: 
@@ -103,7 +104,10 @@ def main():
                         print("Goodbye!")
                         exit()
                 else:
-                    performance = np.average([metrics[c][args.target_metric] for c in metrics])
+                    ordered_metric = [metrics[c][args.target_metric] for c in sorted(metrics)]
+                    ordered_weights = [client_num_users[c] for c in sorted(client_num_users)]
+                    performance = np.average(ordered_metric, weights=ordered_weights)
+
                     print("Current Performance: %.2f - Target %.2f - Remaining: %.2f" % (performance, args.target_performance, args.target_performance - performance))
                     if performance >= args.target_performance:
                         print("Reached target performance, will run ten final rounds and then quit.")
@@ -170,15 +174,15 @@ def get_sys_writer_function(args):
 
 
 def print_stats(
-    num_round, server, clients, num_samples, args, writer, use_val_set):
+    num_round, server, clients, weights, args, writer, use_val_set):
     
     train_stat_metrics = server.test_model(clients, set_to_use='train')
-    print_metrics(train_stat_metrics, num_samples, prefix='train_')
+    print_metrics(train_stat_metrics, weights, prefix='train_')
     writer(num_round, train_stat_metrics, 'train')
 
     eval_set = 'test' if not use_val_set else 'val'
     test_stat_metrics = server.test_model(clients, set_to_use=eval_set)
-    print_metrics(test_stat_metrics, num_samples, prefix='{}_'.format(eval_set))
+    print_metrics(test_stat_metrics, weights, prefix='{}_'.format(eval_set))
     writer(num_round, test_stat_metrics, eval_set)
 
     return test_stat_metrics    
@@ -200,7 +204,7 @@ def print_metrics(metrics, weights, prefix=''):
         ordered_metric = [metrics[c][metric] for c in sorted(metrics)]
         print('%s: %g, 10th percentile: %g, 50th percentile: %g, 90th percentile %g' \
               % (prefix + metric,
-                 np.average(ordered_metric),# weights=ordered_weights), # NOTE: We remove the weights, so we treat each user individually
+                 np.average(ordered_metric, weights=ordered_weights), # NOTE: You are now weighting pr user and not pr sample
                  np.percentile(ordered_metric, 10),
                  np.percentile(ordered_metric, 50),
                  np.percentile(ordered_metric, 90)), flush=True)

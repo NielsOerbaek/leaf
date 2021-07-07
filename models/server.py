@@ -121,7 +121,8 @@ class Server:
         ids = [c.id for c in clients]
         groups = {c.id: c.group for c in clients}
         num_samples = {c.id: c.num_samples for c in clients}
-        return ids, groups, num_samples
+        num_users = {c.id: c.num_users for c in clients}
+        return ids, groups, num_samples, num_users
 
     def save_model(self, path):
         """Saves the server model on checkpoints/dataset/model.ckpt."""
