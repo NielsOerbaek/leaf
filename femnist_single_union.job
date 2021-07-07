@@ -19,7 +19,7 @@ output_dir="/home/niec/leaf/iid"
 frac_of_data="0.05"
 target_performance="0.8"
 num_clients=("1" "3" "10" "35")
-union_sizes=("0.01" "0.05" "0.1" "0.2")
+union_sizes=("0.5" "0.2" "0.1" "0.05" )
 
 function move_data() {
 	path="$1"
