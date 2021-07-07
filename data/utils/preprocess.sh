@@ -229,6 +229,7 @@ if [ ! -z $TFRAC ]; then
     TFRACTAG="--frac $TFRAC"
 fi
 
+#if [ true ] && [ ! $TRAIN = "na" ]; then
 if [ "$CONT_SCRIPT" = true ] && [ ! $TRAIN = "na" ]; then
     if [ -d "data/train" ] && [ "$(ls -A data/train)" ]; then
         CONT_SCRIPT=false
@@ -257,12 +258,12 @@ if [ "$CONT_SCRIPT" = true ] && [ ! $TRAIN = "na" ]; then
     fi
 fi
 
-if [ -z "${NO_CHECKSUM}" ]; then
-    echo '------------------------------'
-    echo "calculating JSON file checksums"
-    find 'data/' -type f -name '*.json' -exec md5sum {} + | sort -k 2 > ${CHECKSUM_FNAME}
-    echo "checksums written to ${CHECKSUM_FNAME}"
-fi
+# if [ -z "${NO_CHECKSUM}" ]; then
+#     echo '------------------------------'
+#     echo "calculating JSON file checksums"
+#     find 'data/' -type f -name '*.json' -exec md5sum {} + | sort -k 2 > ${CHECKSUM_FNAME}
+#     echo "checksums written to ${CHECKSUM_FNAME}"
+# fi
 
 if [ "$CONT_SCRIPT" = false ]; then
     echo "Data for one of the specified preprocessing tasks has already been"

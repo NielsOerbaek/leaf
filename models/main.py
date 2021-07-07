@@ -200,7 +200,7 @@ def print_metrics(metrics, weights, prefix=''):
         ordered_metric = [metrics[c][metric] for c in sorted(metrics)]
         print('%s: %g, 10th percentile: %g, 50th percentile: %g, 90th percentile %g' \
               % (prefix + metric,
-                 np.average(ordered_metric)#, weights=ordered_weights), # NOTE: We remove the weights, so we treat each user individually
+                 np.average(ordered_metric),# weights=ordered_weights), # NOTE: We remove the weights, so we treat each user individually
                  np.percentile(ordered_metric, 10),
                  np.percentile(ordered_metric, 50),
                  np.percentile(ordered_metric, 90)), flush=True)

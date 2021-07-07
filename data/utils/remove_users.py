@@ -71,10 +71,18 @@ for f in files:
 
     all_data = {}
     all_data['users'] = users
+    
     if len(hierarchies) == len(users):
         all_data['hierarchies'] = hierarchies
+    
     if len(unions) == len(users):
+        print("ADDING UNIONS")
         all_data['unions'] = unions
+    
+    else: 
+        print("Not adding unions for some reason... !!!!!!!!!!!!!!!!!")
+        print(len(unions), len(users))
+    
     all_data['num_samples'] = num_samples
     all_data['user_data'] = user_data
 

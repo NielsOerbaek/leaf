@@ -26,6 +26,8 @@ class Client:
             update: set of weights
             update_size: number of bytes in update
         """
+        print("TRAINING: client: %s - samples: %d" % (self.id, len(self.train_data['y'])))
+        
         if minibatch is None:
             data = self.train_data
             comp, update = self.model.train(data, num_epochs, batch_size)
@@ -38,6 +40,7 @@ class Client:
             # Minibatch trains for only 1 epoch - multiple local epochs don't make sense!
             num_epochs = 1
             comp, update = self.model.train(data, num_epochs, num_data)
+
         num_train_samples = len(data['y'])
         return comp, num_train_samples, update
 

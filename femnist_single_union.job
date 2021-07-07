@@ -16,6 +16,9 @@ module load TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
 
 conda info
 
+which python
+conda list tqdm
+
 split_seed="1549786796"
 sampling_seed="1549786595"
 num_rounds="2000"

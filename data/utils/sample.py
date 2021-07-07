@@ -101,11 +101,12 @@ if args.union:
     samples_so_far = 0
 
     for union in unions:
-        #print("\tusers:", len(union))
+        print("-"*80)
+        print("\tusers:", len(union))
         samples_in_this_union = sum(map(lambda c: c[1], union))
-        #print("\tsamples_in_this_union", samples_in_this_union)
+        print("\tsamples_in_this_union", samples_in_this_union)
         frac = args.fraction * samples_in_this_union
-        #print("\tfrac", frac)
+        print("\tfrac", frac)
         selected_users = []
         sample_count = 0
         for id, samples in union:
@@ -113,14 +114,14 @@ if args.union:
                 break
             selected_users.append(id)
             sample_count += samples
-        #print("\tusers in sample:", len(selected_users))
-        #print("\tsamples in sample:", sample_count)
+        print("\tusers in sample:", len(selected_users))
+        print("\tsamples in sample:", sample_count)
         union_sample.append(selected_users)
         union_num_samples.append(sample_count)
         samples_so_far += sample_count
 
 
-    samples_remain = (total_samples - samples_so_far) * args.fraction
+    samples_remain = total_samples * args.fraction - samples_so_far
     print("samples remain:", samples_remain)
     
     num_singles = 0
