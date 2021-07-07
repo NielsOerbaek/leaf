@@ -14,6 +14,11 @@ conda activate leaf
 
 module load TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
 
+conda info
+
+which python
+conda list tqdm
+
 split_seed="1549786796"
 sampling_seed="1549786595"
 num_rounds="2000"
@@ -33,7 +38,7 @@ function move_data() {
 	mv stat_metrics.csv "${path}/stat_metrics_${suffix}.csv"
 	
 
-	cp -r /home/niec/leaf/data/femnist/meta "${path}"
+	cp -r /home/niec/leaf/data/uni-femnist/meta "${path}"
 	mv "${path}/meta" "${path}/meta_${suffix}"
 }
 
@@ -43,14 +48,15 @@ echo "################## EQUAL UNION EXPERIMENTS ######################"
 
 for union_size in ${union_sizes[*]}; do
 	echo "-- UNION SIZE: $union_size"
+
+	cd /home/niec/leaf/data/uni-femnist/data
+	rm -r rem_user_data/ sampled_data/ test/ train/
+
+	cd /home/niec/leaf/data/uni-femnist
+	./preprocess.sh -s union --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --union_size ${union_size} --union_type equal
+
 	for clients_per_round in ${num_clients[*]}; do
 		echo "-- NUMBER OF CLIENTS: $clients_per_round"
-
-		cd /home/niec/leaf/data/uni-femnist/data
-		rm -r rem_user_data/ sampled_data/ test/ train/
-
-		cd /home/niec/leaf/data/uni-femnist
-		./preprocess.sh -s union --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --union_size ${union_size} --union_type equal
 
 		cd /home/niec/leaf/models
 		python -u main.py -dataset 'uni-femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round ${clients_per_round} --num-epochs 1 -lr ${fedavg_lr} --eval-every 2 --target-performance ${target_performance}

@@ -14,6 +14,10 @@ conda activate leaf
 
 module load TensorFlow/1.15.0-fosscuda-2019b-Python-3.7.4
 
+conda info
+
+which python
+conda list tqdm
 
 split_seed="1549786796"
 sampling_seed="1549786595"
@@ -41,15 +45,14 @@ function move_data() {
 # NIID EXPERIMENTS
 echo "################## NIID EXPERIMENTS ######################"
 
+cd /home/niec/leaf/data/femnist/data
+rm -r rem_user_data/ sampled_data/ test/ train/ union/
+
+cd /home/niec/leaf/data/femnist
+./preprocess.sh -s niid --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
+
 for clients_per_round in ${num_clients[*]}; do
     echo "-- NUMBER OF CLIENTS: $clients_per_round"
-    echo "-- NUMBER OF ROUNDS: $num_rounds"
-
-	cd /home/niec/leaf/data/uni-femnist/data
-	rm -r rem_user_data/ sampled_data/ test/ train/ union/
-
-	cd /home/niec/leaf/data/uni-femnist
-	./preprocess.sh -s niid --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
 
 	cd /home/niec/leaf/models
 	python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round ${clients_per_round} --num-epochs 1 -lr ${fedavg_lr} --eval-every 2 --target-performance ${target_performance}
@@ -61,14 +64,15 @@ done
 # IID EXPERIMENTS
 echo "################## IID EXPERIMENTS ######################"
 
+cd /home/niec/leaf/data/femnist/data
+rm -r rem_user_data/ sampled_data/ test/ train/ union/
+
+cd /home/niec/leaf/data/femnist
+./preprocess.sh -s iid --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
+
+
 for clients_per_round in ${num_clients[*]}; do
     echo "-- NUMBER OF CLIENTS: $clients_per_round"
-
-	cd /home/niec/leaf/data/uni-femnist/data
-	rm -r rem_user_data/ sampled_data/ test/ train/ union/
-
-	cd /home/niec/leaf/data/uni-femnist
-	./preprocess.sh -s iid --sf ${frac_of_data} --iu ${frac_of_data} -k 100 -t sample --smplseed ${sampling_seed} --spltseed ${split_seed}
 
 	cd /home/niec/leaf/models
 	python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round ${clients_per_round} --num-epochs 1 -lr ${fedavg_lr} --eval-every 2 --target-performance ${target_performance}
