@@ -46,7 +46,10 @@ def read_dir(data_dir):
             unions.extend(cdata['unions'])
         data.update(cdata['user_data'])
 
-    clients = list(sorted(data.keys()))
+    # NOTE Let's not sort the keys. But you should probably findout a batter wat to do this
+    #clients = list(sorted(data.keys()))
+    clients = list(data.keys())
+
     return clients, groups, unions, data
 
 
