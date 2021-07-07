@@ -55,7 +55,7 @@ for clients_per_round in ${num_clients[*]}; do
     echo "-- NUMBER OF CLIENTS: $clients_per_round"
 
 	cd /home/niec/leaf/models
-	python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round ${clients_per_round} --num-epochs 1 -lr ${fedavg_lr} --eval-every 2 --target-performance ${target_performance}
+	python -u main.py -dataset 'femnist' -model 'cnn' --num-rounds ${num_rounds} --clients-per-round ${clients_per_round} --num-epochs 1 -lr ${fedavg_lr} --eval-every 5 --target-performance ${target_performance}
 
 	cd /home/niec/leaf
 	move_data ${output_dir} "fedavg_c_${clients_per_round}_e_1_frac_${frac_of_data}_niid"
