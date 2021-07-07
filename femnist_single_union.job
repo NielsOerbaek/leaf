@@ -4,6 +4,7 @@
 #SBATCH --output=femnist-single-union.%j.out      # Name of output file (%j expands to jobId)
 #SBATCH --time=72:00:00          # Run time (hh:mm:ss) - run for one hour max
 #SBATCH --exclusive  # Get a full machine
+#SBATCH --gres=gpu               # Schedule a GPU
 #SBATCH --partition=red    # Run on either the Red or Brown queue
 
 echo "Running $(hostname) - Single unions"
