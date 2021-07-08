@@ -12,7 +12,7 @@ from baseline_constants import CLIENT_ID_KEY, NUM_ROUND_KEY, NUM_SAMPLES_KEY
 
 
 COLUMN_NAMES = [
-    CLIENT_ID_KEY, NUM_ROUND_KEY, 'hierarchy', NUM_SAMPLES_KEY, 'set']
+    CLIENT_ID_KEY, NUM_ROUND_KEY, 'hierarchy', NUM_SAMPLES_KEY, 'set', 'num_users']
 
 
 def print_metrics(
@@ -22,6 +22,7 @@ def print_metrics(
         hierarchies,
         num_samples,
         partition,
+        num_users,
         metrics_dir, 
         metrics_name):
     """Prints or appends the given metrics in a csv.
@@ -59,6 +60,7 @@ def print_metrics(
             'hierarchy': ','.join(hierarchies.get(c_id, [])),
             'num_samples': num_samples.get(c_id, np.nan),
             'set': partition,
+            'num_users': num_users.get(c_id, np.nan),
         }
 
         current_metrics = metrics.get(c_id, {})

@@ -70,7 +70,7 @@ def main():
     print('--- Random Initialization ---', flush=True)
     stat_writer_fn = get_stat_writer_function(client_ids, client_groups, client_num_samples, args)
     sys_writer_fn = get_sys_writer_function(args)
-    print_stats(0, server, clients, client_num_samples, args, stat_writer_fn, args.use_val_set)
+    print_stats(0, server, clients, client_num_samples, args, stat_writer_fn, args.use_val_set, client_num_users)
 
     # State for the early stopping target
     round_where_target_reached = None
@@ -86,7 +86,7 @@ def main():
 
         # Simulate server model training on selected clients' data
         sys_metrics = server.train_model(num_epochs=args.num_epochs, batch_size=args.batch_size, minibatch=args.minibatch)
-        sys_writer_fn(i + 1, c_ids, sys_metrics, c_groups, c_num_samples)
+        sys_writer_fn(i + 1, c_ids, sys_metrics, c_groups, c_num_samples, c_num_users)
         
         # Update server model
         server.update_model()
@@ -94,7 +94,7 @@ def main():
         # Test model
         if (i + 1) % eval_every == 0 or (i + 1) == num_rounds:
             #Note: We use the number of users as the weight
-            metrics = print_stats(i + 1, server, clients, client_num_users, args, stat_writer_fn, args.use_val_set)
+            metrics = print_stats(i + 1, server, clients, client_num_samples, args, stat_writer_fn, args.use_val_set, client_num_users)
             
             if args.target_performance:
                 if round_where_target_reached: 
@@ -156,33 +156,35 @@ def setup_clients(dataset, model=None, use_val_set=False):
 
 def get_stat_writer_function(ids, groups, num_samples, args):
 
-    def writer_fn(num_round, metrics, partition):
+    def writer_fn(num_round, metrics, partition, num_users):
         metrics_writer.print_metrics(
-                num_round, ids, metrics, groups, num_samples, partition, args.metrics_dir, '{}_{}'.format('stat',args.metrics_name)) #NOTE: You switched around the arguments in the file name so it matches the rest of the files
+                num_round, ids, metrics, groups, num_samples, partition, num_users, args.metrics_dir, '{}_{}'.format('stat',args.metrics_name)) #NOTE: You switched around the arguments in the file name so it matches the rest of the files
 
     return writer_fn
 
 
 def get_sys_writer_function(args):
 
-    def writer_fn(num_round, ids, metrics, groups, num_samples):
+    def writer_fn(num_round, ids, metrics, groups, num_samples, num_users):
         metrics_writer.print_metrics(
-            num_round, ids, metrics, groups, num_samples, 'train', args.metrics_dir, '{}_{}'.format('sys',args.metrics_name)) #NOTE: You switched around the arguments in the file name so it matches the rest of the files
+            num_round, ids, metrics, groups, num_samples, 'train', num_users, args.metrics_dir, '{}_{}'.format('sys',args.metrics_name)) #NOTE: You switched around the arguments in the file name so it matches the rest of the files
 
     return writer_fn
 
 
 def print_stats(
-    num_round, server, clients, weights, args, writer, use_val_set):
+    num_round, server, clients, client_num_samples, args, writer, use_val_set, client_num_users):
     
+    weights = client_num_users if client_num_users else client_num_samples
+
     train_stat_metrics = server.test_model(clients, set_to_use='train')
     print_metrics(train_stat_metrics, weights, prefix='train_')
-    writer(num_round, train_stat_metrics, 'train')
+    writer(num_round, train_stat_metrics, 'train', client_num_users)
 
     eval_set = 'test' if not use_val_set else 'val'
     test_stat_metrics = server.test_model(clients, set_to_use=eval_set)
     print_metrics(test_stat_metrics, weights, prefix='{}_'.format(eval_set))
-    writer(num_round, test_stat_metrics, eval_set)
+    writer(num_round, test_stat_metrics, eval_set, client_num_users)
 
     return test_stat_metrics    
 
